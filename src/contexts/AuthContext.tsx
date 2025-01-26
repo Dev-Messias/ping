@@ -3,6 +3,7 @@ import React, { useState, createContext, ReactNode, useEffect } from 'react';
 import AsyncStorange from '@react-native-async-storage/async-storage'
 
 import { api } from '../services/api';
+import Toast from "react-native-toast-message";
 
 type AuthContextData = {
     user: UserProps;
@@ -106,6 +107,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         } catch (err) {
             console.log('Erro ao acessar', err);
+            Toast.show({
+                type: 'error',
+                text1: 'Ops! Erro ao acessar',
+                text2: 'Tente novamente mais tarde.'
+            })
             setLoadingAuth(false);
         }
     }

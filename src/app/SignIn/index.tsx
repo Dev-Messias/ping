@@ -1,30 +1,93 @@
-import React, {useState, useContext} from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, Image, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 
 import { AuthContext } from '@/src/contexts/AuthContext';
+import Toast from "react-native-toast-message";
 
 export default function SignIn() {
+    const [login, setLogin] = useState(true)
 
-    const {signIn, loadingAuth} = useContext(AuthContext);
+    const { signIn, loadingAuth } = useContext(AuthContext);
 
+    const [name, setName] = useState('')
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    async function handleLogin(){
-        if(email === '' || password === ''){
+    async function handleLogin() {
+        if (email === '' || password === '') {
+            Toast.show({
+                type: 'info',
+                text1: 'Ops! Verifique os campos.',
+                text2: 'Preencha todos os campos para fazer o login.'
+            })
             return;
         }
 
-        await signIn({email, password});
+        await signIn({ email, password });
 
+    }
+
+    function toggleLogin(){
+        setLogin(!login)
+    }
+
+
+    if (login) {
+        return (
+            <View className='flex-1 items-center flex-col justify-center bg-gray-200' >
+
+                <Text className='text-blue-900 font-bold text-6xl mb-5 ' >Ping</Text>
+
+                <View className='w-11/12 justify-center items-center py-8 px-2' >
+
+                    <TextInput
+                        className='w-11/12 h-12 bg-gray-50 rounded-xl px-4 mb-5'
+                        placeholder='Digite seu email'
+                        value={email}
+                        onChangeText={setEmail}
+                    />
+
+
+                    <TextInput
+                        className='w-11/12 h-12 bg-gray-50 rounded-xl px-4 mb-5'
+                        placeholder='Sua senha'
+                        value={password}
+                        onChangeText={setPassword}
+                    />
+
+                    <TouchableOpacity className='w-11/12 h-12 bg-blue-900 justify-center items-center rounded-xl' onPress={handleLogin} >
+                        {loadingAuth ? (
+                            <ActivityIndicator size={25} color={'#FFF'} />
+                        ) : (
+                            <Text className='font-bold text-gray-50 text-lg' >Acessar</Text>
+                        )}
+
+
+                    </TouchableOpacity>
+
+                    <TouchableOpacity className='w-11/12 h-12 justify-center items-center rounded-xl mt-3' onPress={toggleLogin} >
+                   
+                        <Text className='font-bold text-gray-700 text-lg' >Criar um conta</Text>
+
+                </TouchableOpacity>
+                </View>
+
+            </View>
+        )
     }
 
     return (
         <View className='flex-1 items-center flex-col justify-center bg-gray-200' >
-            
+
             <Text className='text-blue-900 font-bold text-6xl mb-5 ' >Ping</Text>
-            
+
             <View className='w-11/12 justify-center items-center py-8 px-2' >
+                <TextInput
+                    className='w-11/12 h-12 bg-gray-50 rounded-xl px-4 mb-5'
+                    placeholder='Seu nome'
+                    value={name}
+                    onChangeText={setName}
+                />
                 <TextInput
                     className='w-11/12 h-12 bg-gray-50 rounded-xl px-4 mb-5'
                     placeholder='Digite seu email'
@@ -32,20 +95,26 @@ export default function SignIn() {
                     onChangeText={setEmail}
                 />
                 <TextInput
-                className='w-11/12 h-12 bg-gray-50 rounded-xl px-4 mb-5'
+                    className='w-11/12 h-12 bg-gray-50 rounded-xl px-4 mb-5'
                     placeholder='Sua senha'
                     value={password}
                     onChangeText={setPassword}
                 />
 
-                <TouchableOpacity className='w-11/12 h-12 bg-blue-900 justify-center items-center rounded-xl' onPress={handleLogin} >
-                   {loadingAuth ? (
-                    <ActivityIndicator size={25} color={'#FFF'} />
-                   ) : (
-                    <Text className='font-bold text-gray-50 text-lg' >Acessar</Text>
-                   )}
-                        
-                    
+                <TouchableOpacity className='w-11/12 h-12 bg-blue-900 justify-center items-center rounded-xl'  >
+                    {loadingAuth ? (
+                        <ActivityIndicator size={25} color={'#FFF'} />
+                    ) : (
+                        <Text className='font-bold text-gray-50 text-lg' >Cadastrar</Text>
+                    )}
+
+
+                </TouchableOpacity>
+
+                <TouchableOpacity className='w-11/12 h-12 justify-center items-center rounded-xl mt-3' onPress={toggleLogin} >
+                   
+                        <Text className='font-bold text-gray-700 text-lg' >Já tenho uma conta</Text>
+
                 </TouchableOpacity>
             </View>
 
