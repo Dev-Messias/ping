@@ -1,6 +1,9 @@
 import React, { useState, createContext, ReactNode, useEffect } from 'react';
 
-import AsyncStorange from '@react-native-async-storage/async-storage'
+import AsyncStorange from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackPramsList } from '../routes/auth.routes';
 
 import { api } from '../services/api';
 import Toast from "react-native-toast-message";
@@ -11,7 +14,10 @@ type AuthContextData = {
     signIn: (credentials: SignInProps) => Promise<void>;
     loadingAuth: boolean,
     loading: boolean;
+    login: boolean;
+    setLogin: React.Dispatch<React.SetStateAction<boolean>>;
     signOut: () => Promise<void>;
+    userRegister: (credentials: RegisterUserProps) => Promise<void>
 }
 
 type UserProps = {
@@ -32,9 +38,17 @@ type SignInProps = {
     password: string;
 }
 
+type RegisterUserProps = {
+    name: string;
+    email: string;
+    password: string;
+}
+
 export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
+    const navigation = useNavigation<NativeStackNavigationProp<StackPramsList>>();
+
     const [user, setUser] = useState<UserProps>({
         id: '',
         name: '',
@@ -48,6 +62,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [loading, setLoading] = useState(true);
 
     const isAuthenticated = !!user.name;
+    const [login, setLogin] = useState(true);
 
     useEffect(() => {
         async function getUser() {
@@ -73,6 +88,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         getUser()
     }, [])
+
+
+    async function userRegister({ name, email, password }: RegisterUserProps) {
+        setLoadingAuth(true);
+        try {
+
+            const response = await api.post('/users', {
+                name,
+                email,
+                password
+            })
+
+           setLogin(!login)
+
+            Toast.show({
+                type: 'success',
+                text1: `Cadastro realizado com sucesso`,
+            })
+
+            setLoadingAuth(false)
+
+        } catch (err) {
+            console.log('Erro ao cadastrar', err);
+            Toast.show({
+                type: 'error',
+                text1: 'Ops! Erro ao cadastrar',
+                text2: 'Verifique suas credenciais.'
+            })
+            setLoadingAuth(false);
+        }
+    }
 
     async function signIn({ email, password }: SignInProps) {
         setLoadingAuth(true);
@@ -133,7 +179,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return (
         <AuthContext.Provider
-            value={{ user, isAuthenticated, signIn, signOut, loadingAuth, loading }}
+            value={{ user, isAuthenticated, signIn, signOut, userRegister, loadingAuth, loading, login, setLogin }}
         >
             {children}
         </AuthContext.Provider>

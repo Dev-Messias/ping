@@ -3,9 +3,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import SignIn from '../app/SignIn';
 
-const Stack = createNativeStackNavigator();
+export type StackPramsList = {
+    Login: undefined;
+}
+
+const Stack = createNativeStackNavigator<StackPramsList>();
 
 //user nao logado
+
+
 
 function AuthRoutes(){
     return(
