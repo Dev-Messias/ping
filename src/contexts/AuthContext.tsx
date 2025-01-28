@@ -24,6 +24,7 @@ type UserProps = {
     id: string;
     name: string;
     email: string;
+    bio: string;
     avatar: string;
     banner: string;
     token: string;
@@ -44,6 +45,7 @@ type RegisterUserProps = {
     password: string;
 }
 
+
 export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -53,6 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         id: '',
         name: '',
         email: '',
+        bio: '',
         avatar: '',
         banner: '',
         token: ''
@@ -77,6 +80,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     id: hasUser.id,
                     name: hasUser.name,
                     email: hasUser.email,
+                    bio: hasUser.bio,
                     avatar: hasUser.avatar,
                     banner: hasUser.banner,
                     token: hasUser.token
@@ -120,6 +124,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }
 
+
+
     async function signIn({ email, password }: SignInProps) {
         setLoadingAuth(true);
 
@@ -130,7 +136,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 password
             })
 
-            const { id, name, avatar, banner, token } = response.data;
+            const { id, name, bio, avatar, banner, token } = response.data;
 
             const data = {
                 ...response.data
@@ -144,6 +150,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 id,
                 name,
                 email,
+                bio,
                 avatar,
                 banner,
                 token
@@ -169,6 +176,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     id: '',
                     name: '',
                     email: '',
+                    bio: '',
                     avatar: '',
                     banner: '',
                     token: ''

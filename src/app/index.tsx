@@ -10,7 +10,7 @@ export default function Index() {
   return (
 
     <AuthProvider>
-      <StatusBar backgroundColor="#1E3A8A" barStyle="light-content" translucent={false} />
+      <StatusBar backgroundColor="#fff" barStyle="dark-content" translucent={false} />
       <Routes />
       <Toast/>
     </AuthProvider>
