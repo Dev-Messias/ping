@@ -18,13 +18,14 @@ type AuthContextData = {
     setLogin: React.Dispatch<React.SetStateAction<boolean>>;
     signOut: () => Promise<void>;
     userRegister: (credentials: RegisterUserProps) => Promise<void>
+    UpdateDataUser: (credentials: UpdateDataUser) => Promise<void>
 }
 
 type UserProps = {
     id: string;
     name: string;
     email: string;
-    bio: string;
+    bio?: string;
     avatar: string;
     banner: string;
     token: string;
@@ -43,6 +44,12 @@ type RegisterUserProps = {
     name: string;
     email: string;
     password: string;
+}
+
+type UpdateDataUser = {
+    name: string;
+    bio?: string ;
+    token: string;
 }
 
 
@@ -156,6 +163,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 token
             })
 
+
+
             setLoadingAuth(false)
 
         } catch (err) {
@@ -163,6 +172,52 @@ export function AuthProvider({ children }: AuthProviderProps) {
             Toast.show({
                 type: 'error',
                 text1: 'Ops! Erro ao acessar',
+                text2: 'Tente novamente mais tarde.'
+            })
+            setLoadingAuth(false);
+        }
+    }
+
+    async function UpdateDataUser({name, bio, token}: UpdateDataUser){
+        try {
+
+            const response = await api.put('user-data', {
+                name,
+                bio
+            })
+
+            const { id, email,  avatar, banner } = response.data;
+
+            const data = {
+                ...response.data
+            }
+
+            await AsyncStorange.setItem('@pingApp', JSON.stringify(data))
+
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+            setUser({
+                id,
+                name,
+                email,
+                bio,
+                avatar,
+                banner,
+                token
+            })
+
+            
+            Toast.show({
+                type: 'success',
+                text1: '🎉 Dados atualizados com sucesso. 🎉'
+            })
+
+            setLoadingAuth(false)
+            
+        } catch (err) {
+            Toast.show({
+                type: 'error',
+                text1: 'Ops! Erro ao atualizar os dados',
                 text2: 'Tente novamente mais tarde.'
             })
             setLoadingAuth(false);
@@ -187,7 +242,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return (
         <AuthContext.Provider
-            value={{ user, isAuthenticated, signIn, signOut, userRegister, loadingAuth, loading, login, setLogin }}
+            value={{ user, isAuthenticated, signIn, signOut, userRegister, UpdateDataUser, loadingAuth, loading, login, setLogin }}
         >
             {children}
         </AuthContext.Provider>

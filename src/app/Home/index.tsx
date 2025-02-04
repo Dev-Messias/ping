@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, SafeAreaView } from 'react-native';
+import Header from '@/src/components/Header';
 
 export default function Home(){
     return(
-        <View className='flex-1' >
-            <Text>Home testeste </Text>
-        </View>
+        <SafeAreaView className='flex-1' >
+            <Header/>
+        </SafeAreaView>
     )
 }

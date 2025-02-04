@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { View, Text, Button, Image, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 
 import { AuthContext } from '../../contexts/AuthContext'
+import Header from '@/src/components/Header';
 
 export default function Profile() {
     const { signOut, user } = useContext(AuthContext);
@@ -9,12 +10,13 @@ export default function Profile() {
 
     return (
         <SafeAreaView className='flex-1 bg-slate-100 '  >
+            <Header/>
             <ScrollView className='w-full flex-1 flex-col px-2  ' showsVerticalScrollIndicator={false} >
-                <Text>Tela Profile</Text>
+                {/* <Text>Tela Profile</Text>
                 <Button
                     title='Sair do app'
                     onPress={signOut}
-                />
+                /> */}
 
                 <View className='w-full h-44 rounded-2xl mt-5 mb-4 ' >
                     {user.banner === null ? (<Image
