@@ -19,6 +19,7 @@ type AuthContextData = {
     signOut: () => Promise<void>;
     userRegister: (credentials: RegisterUserProps) => Promise<void>
     UpdateDataUser: (credentials: UpdateDataUser) => Promise<void>
+    UpdateAvatarUser: (credentials: UpdateAvatarUser) => Promise<void>
 }
 
 type UserProps = {
@@ -48,7 +49,14 @@ type RegisterUserProps = {
 
 type UpdateDataUser = {
     name: string;
-    bio?: string ;
+    bio?: string;
+    token: string;
+}
+
+type UpdateAvatarUser = {
+    uri: string | null;
+    nameImg: string;
+    type: string | undefined;
     token: string;
 }
 
@@ -92,7 +100,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
                     banner: hasUser.banner,
                     token: hasUser.token
                 })
+
+               
             }
+
+            // console.log("context name", user.token)
 
             setLoading(false)
         }
@@ -111,7 +123,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 password
             })
 
-           setLogin(!login)
+            setLogin(!login)
 
             Toast.show({
                 type: 'success',
@@ -168,7 +180,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setLoadingAuth(false)
 
         } catch (err) {
-            console.log('Erro ao acessar', err);
+            // console.log('Erro ao acessar', err);
             Toast.show({
                 type: 'error',
                 text1: 'Ops! Erro ao acessar',
@@ -178,7 +190,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }
 
-    async function UpdateDataUser({name, bio, token}: UpdateDataUser){
+    async function UpdateDataUser({ name, bio, token }: UpdateDataUser) {
         try {
 
             const response = await api.put('user-data', {
@@ -186,15 +198,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 bio
             })
 
-            const { id, email,  avatar, banner } = response.data;
+            const { id, email, avatar, banner } = response.data;
 
             const data = {
-                ...response.data
+                ...response.data,
+                token: user.token
             }
 
             await AsyncStorange.setItem('@pingApp', JSON.stringify(data))
 
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+            // api.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
             setUser({
                 id,
@@ -203,24 +216,92 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 bio,
                 avatar,
                 banner,
-                token
+                token: user.token
             })
 
-            
+
             Toast.show({
                 type: 'success',
                 text1: '🎉 Dados atualizados com sucesso. 🎉'
             })
 
-            setLoadingAuth(false)
-            
+            setLoading(false)
+
         } catch (err) {
             Toast.show({
                 type: 'error',
                 text1: 'Ops! Erro ao atualizar os dados',
                 text2: 'Tente novamente mais tarde.'
             })
+            setLoading(false);
+        }
+    }
+
+    async function UpdateAvatarUser({ uri, nameImg, type, token}: UpdateAvatarUser) {
+
+        setLoadingAuth(true)
+
+        // console.log("dentro do context - ", user.token)
+
+        try {
+            
+            const formData = new FormData();
+            formData.append("file", {
+                uri: uri,
+                name: nameImg,
+                type: type,
+            } as any)
+
+            // console.log("context", token)
+
+            const response = await api.putForm('user-avatar', formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    // Authorization: `Bearer ${token}`
+                },
+                
+            })
+
+            // console.log("teste Antes dp async - ", user.token)
+
+            const { id, name, email, bio, avatar, banner } = response.data;
+
+            const data = {
+                ...response.data,
+                token: user.token
+            }
+
+            await AsyncStorange.setItem('@pingApp', JSON.stringify(data))
+
+            // api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+            setUser({
+                id,
+                name,
+                email,
+                bio,
+                avatar,
+                banner,
+                token : user.token
+            })
+
+
+            Toast.show({
+                type: 'success',
+                text1: '🎉 Avatar atualizado com sucesso. 🎉'
+            })
+
+            setLoadingAuth(false)
+
+        } catch (err) {
+            //  console.log("catch - ",user.token)
+            Toast.show({
+                type: 'error',
+                text1: 'Ops! Erro ao atualizar 😥 ',
+                text2: 'Tente novamente mais tarde.'
+            })
             setLoadingAuth(false);
+           
         }
     }
 
@@ -242,7 +323,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return (
         <AuthContext.Provider
-            value={{ user, isAuthenticated, signIn, signOut, userRegister, UpdateDataUser, loadingAuth, loading, login, setLogin }}
+            value={{ user, isAuthenticated, signIn, signOut, userRegister, UpdateDataUser, UpdateAvatarUser, loadingAuth, loading, login, setLogin }}
         >
             {children}
         </AuthContext.Provider>
