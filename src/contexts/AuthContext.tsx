@@ -20,6 +20,7 @@ type AuthContextData = {
     userRegister: (credentials: RegisterUserProps) => Promise<void>
     UpdateDataUser: (credentials: UpdateDataUser) => Promise<void>
     UpdateAvatarUser: (credentials: UpdateAvatarUser) => Promise<void>
+    UpdateBannerUser: (credentials: UpdateAvatarUser) => Promise<void>
 }
 
 type UserProps = {
@@ -57,7 +58,6 @@ type UpdateAvatarUser = {
     uri: string | null;
     nameImg: string;
     type: string | undefined;
-    token: string;
 }
 
 
@@ -237,7 +237,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }
 
-    async function UpdateAvatarUser({ uri, nameImg, type, token}: UpdateAvatarUser) {
+    async function UpdateAvatarUser({ uri, nameImg, type}: UpdateAvatarUser) {
 
         setLoadingAuth(true)
 
@@ -305,6 +305,67 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }
 
+    async function UpdateBannerUser({ uri, nameImg, type}: UpdateAvatarUser) {
+
+        setLoadingAuth(true)
+
+        try {
+            
+            const formData = new FormData();
+            formData.append("file", {
+                uri: uri,
+                name: nameImg,
+                type: type,
+            } as any)
+
+            const response = await api.putForm('user-banner', formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                
+            })
+
+           
+
+            const { id, name, email, bio, avatar, banner } = response.data;
+
+            const data = {
+                ...response.data,
+                token: user.token
+            }
+
+            await AsyncStorange.setItem('@pingApp', JSON.stringify(data))
+
+            setUser({
+                id,
+                name,
+                email,
+                bio,
+                avatar,
+                banner,
+                token : user.token
+            })
+
+
+            Toast.show({
+                type: 'success',
+                text1: '🎉 Banner atualizado com sucesso. 🎉'
+            })
+
+            setLoadingAuth(false)
+
+        } catch (err) {
+            //  console.log("catch - ",user.token)
+            Toast.show({
+                type: 'error',
+                text1: 'Ops! Erro ao atualizar 😥 ',
+                text2: 'Tente novamente mais tarde.'
+            })
+            setLoadingAuth(false);
+           
+        }
+    }
+
     async function signOut() {
         await AsyncStorange.clear()
             .then(() => {
@@ -323,7 +384,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     return (
         <AuthContext.Provider
-            value={{ user, isAuthenticated, signIn, signOut, userRegister, UpdateDataUser, UpdateAvatarUser, loadingAuth, loading, login, setLogin }}
+            value={{ user, isAuthenticated, signIn, signOut, userRegister, UpdateDataUser, UpdateAvatarUser, UpdateBannerUser, loadingAuth, loading, login, setLogin }}
         >
             {children}
         </AuthContext.Provider>
